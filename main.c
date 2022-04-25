@@ -11,7 +11,7 @@ int totNode, totLink;
 
 long long nodeid[maxn * 2], dcsNode[maxn * 2], dcsNodeId[maxn * 2];
 
-struct _link {
+typedef struct _link{
     long double linkId;
     long double node1;
     long double node2;
@@ -21,7 +21,9 @@ struct _link {
     long double veg;
     long double land;
     long double poi;
-} link[maxn * 2];
+    long long linkcnt;
+    struct _link *next;
+} link;
 
 
 long long linkid[maxn * 2];
@@ -32,32 +34,19 @@ long double landOfLink[maxn * 2];
 
 int cntEdge;
 
-typedef struct _Edge{
-    long long  u, v;
-    long double w;
-    int head;
-    struct _Edge *next;
+void readLink(link *linklist,char *filename) {
 
-} Edge;
-void addEdge(long long u, long long v, long double w){
-    Edge *e = (Edge *)malloc(sizeof(Edge));
-    e->u = u;
-    e->v = v;
-    e->w = w;
-    e->next = head[u];
-    head[u] = e;
-    cntEdge++;
-}
-
-
-void readLink(char *filename) {
     long long linkCnt = 0;
     long long nodeCnt = 0;
+
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         printf("open file error!\n");
         exit(1);
     }
+
+    link *now = linklist;
+
     while (!feof(fp)) {
         char linkId[100], node1[100], node2[100], way[100], len[100], veg[100], arch[100], land[100], poi[100];
         char buffer[100];
@@ -69,16 +58,20 @@ void readLink(char *filename) {
                "<link id=%s node=%s node=%s way=%s length=%s veg=%s arch=%s "
                "land=%s POI=%s;/link>",
                &linkId, &node1, &node2, &way, &len, &veg, &arch, &land, &poi);
-
-        link[linkCnt].linkId = atof(linkId);
-        link[linkCnt].node1 = atof(node1);
-        link[linkCnt].node2 = atof(node2);
-        link[linkCnt].way = atof(way);
-        link[linkCnt].len = atof(len);
-        link[linkCnt].veg = atof(veg);
-        link[linkCnt].arch = atof(arch);
-        link[linkCnt].land = atof(land);
-        link[linkCnt].poi = atof(poi);
+        link *p = (link *)malloc(sizeof(link));
+        p->linkId = atof(linkId);
+        p->node1 = atof(node1);
+        p->node2 = atof(node2);
+        p->way = atof(way);
+        p->len = atof(len);
+        p->veg = atof(veg);
+        p->arch = atof(arch);
+        p->land = atof(land);
+        p->poi = atof(poi);
+        p->linkcnt = now->linkcnt + 1;
+        p->next = NULL;
+        now->next = p;
+        now = p;
 
         nodeid[++nodeCnt] = atoi(node1);
         nodeid[++nodeCnt] = atoi(node2);
@@ -118,13 +111,13 @@ void sortNode(int l, int r) {
 
 void buildGraph() {
     cntEdge = 0;
-    for (int i = 1; i <= totLink; i++) {
-        addEdge(link[i].node1, link[i].node2, link[i].len);
-        addEdge(link[i].node2, link[i].node1, link[i].len);
-    }
+
 }
 
 int main() {
+    link *linklist = (link *)malloc(sizeof(link));
+    linklist->next = NULL;
+    linklist->linkcnt = 0;
     printf("Hello, World!\n");
     return 0;
 }
