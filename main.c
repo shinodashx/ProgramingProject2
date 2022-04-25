@@ -9,8 +9,9 @@ int totNode, totLink;
 
 //int head[maxn * 2], to[maxn * 2], nxt[maxn * 2], n, m;
 
-long long nodeid[maxn * 2], dcsNode[maxn * 2], dcsNodeId[maxn * 2];
+//long long nodeid[maxn * 2], dcsNode[maxn * 2], dcsNodeId[maxn * 2];
 
+long long *nodeId, *dcsNodeId, *dcsNode;
 typedef struct _link{
     long double linkId;
     long double node1;
@@ -73,14 +74,14 @@ void readLink(link *linklist,char *filename) {
         now->next = p;
         now = p;
 
-        nodeid[++nodeCnt] = atoi(node1);
-        nodeid[++nodeCnt] = atoi(node2);
-
+        nodeId[++nodeCnt] = atof(node1);
+        nodeId[++nodeCnt] = atof(node2);
     }
-    totNode = nodeCnt;
     totLink = linkCnt;
-    for (int i = 1; i <= totNode; i++) {
-        dcsNode[i] = nodeid[i];
+    totNode = nodeCnt;
+    for(int i = 1; i <= nodeCnt; i++)
+    {
+        dcsNodeId[i] = nodeId[i];
     }
 }
 
@@ -108,7 +109,17 @@ void sortNode(int l, int r) {
     if (i < r) sortNode(i, r);
 }
 
-
+void uniqueNode(int l, int r) {
+    int i = l, j = l + 1;
+    while (j <= r) {
+        if (dcsNode[j] != dcsNode[i]) {
+            i++;
+            dcsNode[i] = dcsNode[j];
+        }
+        j++;
+    }
+    totNode = i - l + 1;
+}
 void buildGraph() {
     cntEdge = 0;
 
