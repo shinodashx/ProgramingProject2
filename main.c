@@ -162,25 +162,25 @@ void initDcsNode() {
     }
 }
 //
-long long getNodePos(long long node) {
-    for (int i = 1; i <= totNode; i++) {
-        if (nodeId[i] == node)
-            return i;
-    }
-}
-
-//long long binarySearchPos(long long node){
-//    int l = 1, r = totNode;
-//    while (l <= r){
-//        int mid = l+((r-l)>>1);
-//        if(nodeId[mid] <node)
-//            l = mid+1;
-//        else if(nodeId[mid] > node)
-//            r = mid-1;
-//        else
-//            return mid;
+//long long getNodePos(long long node) {
+//    for (int i = 1; i <= totNode; i++) {
+//        if (nodeId[i] == node)
+//            return i;
 //    }
 //}
+
+long long binarySearchPos(long long node){
+    int l = 1, r = totNode;
+    while (l <= r){
+        int mid = l+((r-l)>>1);
+        if(nodeId[mid] <node)
+            l = mid+1;
+        else if(nodeId[mid] > node)
+            r = mid-1;
+        else
+            return mid;
+    }
+}
 
 void buildGraph(link *linklist) {
     totEdge = 0;
