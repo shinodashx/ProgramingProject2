@@ -11,7 +11,6 @@ long long *tmpNodeId;
 long long *head, *to, *nxt;
 
 long double *heap;
-long double *dis;
 long double *dist;
 long long *zkwsgt;
 long long M;
@@ -24,7 +23,7 @@ struct Edge {
 } *edge;
 int totEdge;
 
-struct  SgetmentTree{
+struct SgetmentTree {
     long long x;
     long double val;
 } *segmentTree;
@@ -51,8 +50,6 @@ typedef struct _link {
     long long linkcnt;
     struct _link *next;
 } link;
-
-
 
 
 void readLink(link *linklist, char *filename) {
@@ -121,19 +118,15 @@ void init(link *linklist) {
     //memset(edge, 0, sizeof(struct Edge) * 2 * (totNode + 100));
     heap = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
     memset(heap, 0, sizeof(long double) * 5 * (totNode + 100));
-    dis = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
-    memset(dis, 0x7f, sizeof(long double) * 5 * (totNode + 100));
-
     dist = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
     memset(dist, 0x7f, sizeof(long double) * 5 * (totNode + 100));
 
-    mp = (long long *) malloc(sizeof(long long) * 5* (totNode + 100));
-
+    mp = (long long *) malloc(sizeof(long long) * 5 * (totNode + 100));
 
 
     segmentTree = (struct SgetmentTree *) malloc(sizeof(struct SgetmentTree) * 4 * (totNode + 100));
     memset(segmentTree, 0, sizeof(struct SgetmentTree) * 4 * (totNode + 100));
-    for(int i = 0; i < 4 * (totNode + 100); i++){
+    for (int i = 0; i < 4 * (totNode + 100); i++) {
         segmentTree[i].val = INF;
     }
 
@@ -150,6 +143,7 @@ void init(link *linklist) {
     }
     totNode = cnt;
 }
+
 void mergeSort(long long *a, long long *b, long long l, long long r) {
     if (l >= r)
         return;
@@ -243,40 +237,47 @@ void getLen(long long node1, long long node2) {
     }
     printf("-1\n");
 }
-
-long long cmp(long long a, long long b) { return dist[a] < dist[b] ? a : b; }
-void build(int n) {
-    while (M < n + 2) M <<= 1;
-    mp[0] = n + 1;
-}
-void modify(long long x, long double nv) {
-    for (long long i = x + M; dist[mp[i]] > nv; i >>= 1)
-        mp[i] = x;
-    dist[x] = nv;
-}
-void del(long long x) {
-    for (mp[x += M] = 0, x >>= 1; x; x >>= 1)
-        mp[x] = cmp(mp[x << 1], mp[x << 1 | 1]);
-}
-long double dijkstra(long long s, long long t) {
-    s = binarySearchPos(s);
-    //t = binarySearchPos(t);
-    for(int i = 0 ;i<=totNode;++i) dist[i] = 1e8;
-    build(totNode); modify(s, 0);
-
-    for(int k = 1; k<totNode;++k){
-        long long x = mp[1];
-        del(x);
-        for(long long i = head[x]; i!=-1; i = edge[i].next){
-            long long v = edge[i].v;
-            long double w = edge[i].w;
-            if(dist[v]>dist[x]+w){
-                modify(v,dist[x]+w);
-            }
-        }
-    }
-    return dist[t];
-}
+//
+//long long cmp(long long a, long long b) { return dist[a] < dist[b] ? a : b; }
+//
+//void build(long long n) {
+//    while (M < n + 2) M <<= 1;
+//    mp[0] = n + 1;
+//}
+//
+//void modify(long long x, long double nv) {
+//    for (long long i = x + M; (long double)dist[mp[i]] > nv; i >>= 1)
+//        mp[i] = x;
+//    dist[x] = nv;
+//}
+//
+//void del(long long x) {
+//    for (mp[x += M] = 0, x >>= 1; x; x >>= 1)
+//        mp[x] = cmp(mp[x << 1], mp[x << 1 | 1]);
+//}
+//
+//long double dijkstra(long long s, long long t) {
+//    s = binarySearchPos(s);
+//    t = binarySearchPos(t);
+//    for (int i = 0; i <= totNode; ++i) dist[i] = (long double)1e8+0.0;
+//    build(totNode);
+//    modify(s, 0.00);
+//
+//    for (int k = 1; k < totNode; ++k) {
+//        long long x = mp[1];
+//        del(x);
+//        for (long long i = head[x]; i != -1; i = edge[i].next) {
+//            long long v = edge[i].v;
+//            long double w = (long double)edge[i].w;
+//            if (dist[v] > dist[x] + w + 0.0) {
+//                modify(v, dist[x] + w+0.00);
+//                if(v == t) printf("%Lf\n", dist[v]);
+//                //dist[v] =dist[x] + w;
+//            }
+//        }
+//    }
+//    return dist[t];
+//}
 
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
@@ -294,9 +295,21 @@ int main() {
 //    long double ans = dijkstra(u, v);
 //    printf("%Lf\n", ans);
     long long s = 1615404345;
-    for(int i = 1; i<=totNode;++i){
-        long double ans = dijkstra(s, i);
-        printf("%lld %Lf\n", nodeId[i], ans);
+//    for (int i = 1; i <= totNode; ++i) {
+//        long double ans = dijkstra(s, i);
+//        printf("%lld %Lf\n", nodeId[i], ans);
+//    }
+    long double sum = 0;
+    long long pa[10] = {0,985084880 ,247293194 ,247293217 ,-2450 ,247293200 ,247293203 ,1615404345};
+    for(int i = 2; i <= 7; ++i) {
+        long double ans = dijkstra(pa[i-1], pa[i]);
+        printf("%Lf\n",ans);
+        sum += ans;
     }
+    printf("|||||||||||||||||||||||||||||||\n");
+
+    printf("%Lf\n", dijkstra(985084880, 1615404345));
+    //printf("%Lf\n",dist[binarySearchPos(pa[7])]);
+    //printf("%Lf\n",sum);
     return 0;
 }
