@@ -2,11 +2,20 @@
 #include <string.h>
 #include <stdlib.h>
 
+const long long INF = 10000000000000000;
+
 int totNode, totLink;
 
 long long *nodeId, *dcsNodeId, *dcsNode;
 long long *tmpNodeId;
 long long *head, *to, *nxt;
+
+long double *heap;
+long double *dis;
+long double *dist;
+long long *zkwsgt;
+long long M;
+long long *mp;
 
 struct Edge {
     long long u, v;
@@ -14,6 +23,12 @@ struct Edge {
     long long next;
 } *edge;
 int totEdge;
+
+struct  SgetmentTree{
+    long long x;
+    long double val;
+} *segmentTree;
+
 
 void addEdge(long long u, long long v, long double w) {
     edge[++totEdge].u = u;
@@ -36,6 +51,8 @@ typedef struct _link {
     long long linkcnt;
     struct _link *next;
 } link;
+
+
 
 
 void readLink(link *linklist, char *filename) {
@@ -102,6 +119,27 @@ void init(link *linklist) {
     memset(dcsNodeId, -1, sizeof(long long) * 2 * (totNode + 100));
     memset(dcsNode, -1, sizeof(long long) * 2 * (totNode + 100));
     //memset(edge, 0, sizeof(struct Edge) * 2 * (totNode + 100));
+    heap = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
+    memset(heap, 0, sizeof(long double) * 5 * (totNode + 100));
+    dis = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
+    memset(dis, 0x7f, sizeof(long double) * 5 * (totNode + 100));
+
+    dist = (long double *) malloc(sizeof(long double) * 5 * (totNode + 100));
+    memset(dist, 0x7f, sizeof(long double) * 5 * (totNode + 100));
+
+    mp = (long long *) malloc(sizeof(long long) * 5* (totNode + 100));
+
+
+
+    segmentTree = (struct SgetmentTree *) malloc(sizeof(struct SgetmentTree) * 4 * (totNode + 100));
+    memset(segmentTree, 0, sizeof(struct SgetmentTree) * 4 * (totNode + 100));
+    for(int i = 0; i < 4 * (totNode + 100); i++){
+        segmentTree[i].val = INF;
+    }
+
+    zkwsgt = (long long *) malloc(sizeof(long long) * 5 * (totNode + 100));
+    memset(zkwsgt, 0, sizeof(long long) * 5 * (totNode + 100));
+    M = 1;
 
     link *now = linklist;
     now = now->next;
@@ -112,8 +150,6 @@ void init(link *linklist) {
     }
     totNode = cnt;
 }
-
-
 void mergeSort(long long *a, long long *b, long long l, long long r) {
     if (l >= r)
         return;
@@ -161,22 +197,15 @@ void initDcsNode() {
         dcsNode[i] = i;
     }
 }
-//
-//long long getNodePos(long long node) {
-//    for (int i = 1; i <= totNode; i++) {
-//        if (nodeId[i] == node)
-//            return i;
-//    }
-//}
 
-long long binarySearchPos(long long node){
+long long binarySearchPos(long long node) {
     int l = 1, r = totNode;
-    while (l <= r){
-        int mid = l+((r-l)>>1);
-        if(nodeId[mid] <node)
-            l = mid+1;
-        else if(nodeId[mid] > node)
-            r = mid-1;
+    while (l <= r) {
+        int mid = l + ((r - l) >> 1);
+        if (nodeId[mid] < node)
+            l = mid + 1;
+        else if (nodeId[mid] > node)
+            r = mid - 1;
         else
             return mid;
     }
@@ -215,6 +244,40 @@ void getLen(long long node1, long long node2) {
     printf("-1\n");
 }
 
+long long cmp(long long a, long long b) { return dist[a] < dist[b] ? a : b; }
+void build(int n) {
+    while (M < n + 2) M <<= 1;
+    mp[0] = n + 1;
+}
+void modify(long long x, long double nv) {
+    for (long long i = x + M; dist[mp[i]] > nv; i >>= 1)
+        mp[i] = x;
+    dist[x] = nv;
+}
+void del(long long x) {
+    for (mp[x += M] = 0, x >>= 1; x; x >>= 1)
+        mp[x] = cmp(mp[x << 1], mp[x << 1 | 1]);
+}
+long double dijkstra(long long s, long long t) {
+    s = binarySearchPos(s);
+    //t = binarySearchPos(t);
+    for(int i = 0 ;i<=totNode;++i) dist[i] = 1e8;
+    build(totNode); modify(s, 0);
+
+    for(int k = 1; k<totNode;++k){
+        long long x = mp[1];
+        del(x);
+        for(long long i = head[x]; i!=-1; i = edge[i].next){
+            long long v = edge[i].v;
+            long double w = edge[i].w;
+            if(dist[v]>dist[x]+w){
+                modify(v,dist[x]+w);
+            }
+        }
+    }
+    return dist[t];
+}
+
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
     linklist->next = NULL;
@@ -225,8 +288,15 @@ int main() {
     nodedeDuplication();
     initDcsNode();
     buildGraph(linklist);
-    printf("Hello, World!\n");
-    int u = -8847, v = -8849;
-    getLen(u, v);
+//    printf("Hello, World!\n");
+//    int u = 151854784, v = -1887865283;
+//    getLen(u, v);
+//    long double ans = dijkstra(u, v);
+//    printf("%Lf\n", ans);
+    long long s = 1615404345;
+    for(int i = 1; i<=totNode;++i){
+        long double ans = dijkstra(s, i);
+        printf("%lld %Lf\n", nodeId[i], ans);
+    }
     return 0;
 }
