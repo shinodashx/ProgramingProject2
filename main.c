@@ -43,8 +43,15 @@ typedef struct _link {
     struct _link *next;
 } link;
 
+typedef struct _NodeLink{
+    long long ID;
+    long double lat;
+    long double lon;
+    struct _NodeLink *next;
+}nodeLink;
 
-void readLink(link *linklist, char *filename) {
+
+void readLink(link *linklist, nodeLink *nodeLinkList,char *filename) {
 
     long long linkCnt = 0;
     long long nodeCnt = 0;
@@ -56,42 +63,56 @@ void readLink(link *linklist, char *filename) {
     }
 
     link *now = linklist;
+    nodeLink *nowNode = nodeLinkList;
 
     while (!feof(fp)) {
         char linkId[100] = {0}, node1[100] = {0}, node2[100] = {0}, way[100] = {0}, len[20], veg[100] = {
                 0}, arch[100] = {0}, land[100] = {0}, poi[100] = {0};
         char buffer[100] = {0};
         fgets(buffer, 100, fp);
-        if (strstr(buffer, "<link") == NULL)
-            continue;
-        linkCnt++;
-        sscanf(buffer,
-               "<link id=%s node=%s node=%s way=%s length=%s veg=%s arch=%s "
-               "land=%s POI=%s;/link>",
-               &linkId, &node1, &node2, &way, &len, &veg, &arch, &land, &poi);
-        //printf("%s %s %s \n",node1,node2,len);
-        link *p = (link *) malloc(sizeof(link));
-        p->linkId = atof(linkId);
-        p->node1 = atoll(node1);
-        p->node2 = atoll(node2);
-        p->way = atof(way);
-       // p->len = atof(len);
-        p->len = strtold(len, NULL);
-        p->veg = atof(veg);
-        p->arch = atof(arch);
-        p->land = atof(land);
-        p->poi = atof(poi);
-        p->linkcnt = now->linkcnt + 1;
-        p->next = NULL;
-        now->next = p;
-        now = p;
-       // printf("%lld %lld %Lf\n", p->node1, p->node2, p->len);
+        if (strstr(buffer, "<link") != NULL) {
+            linkCnt++;
+            sscanf(buffer,
+                   "<link id=%s node=%s node=%s way=%s length=%s veg=%s arch=%s "
+                   "land=%s POI=%s;/link>",
+                   &linkId, &node1, &node2, &way, &len, &veg, &arch, &land, &poi);
+            //printf("%s %s %s \n",node1,node2,len);
+            link *p = (link *) malloc(sizeof(link));
+            p->linkId = atof(linkId);
+            p->node1 = atoll(node1);
+            p->node2 = atoll(node2);
+            p->way = atof(way);
+            // p->len = atof(len);
+            p->len = strtold(len, NULL);
+            p->veg = atof(veg);
+            p->arch = atof(arch);
+            p->land = atof(land);
+            p->poi = atof(poi);
+            p->linkcnt = now->linkcnt + 1;
+            p->next = NULL;
+            now->next = p;
+            now = p;
+        } else if(strstr(buffer, "<node") != NULL) {
+            nodeCnt++;
+            char nodeId[100] = {0};
+            char lat[100] = {0};
+            char lon[100] = {0};
+            sscanf(buffer, "<node id=%s lat=%s lon=%s;/node>", &nodeId, &lat, &lon);
+            nodeLink *p = (nodeLink *) malloc(sizeof(nodeLink));
+            p->ID = atoll(nodeId);
+            p->lat = atof(lat);
+            p->lon = atof(lon);
+            p->next = NULL;
+            nowNode->next = p;
+            nowNode = p;
+        }
+        // printf("%lld %lld %Lf\n", p->node1, p->node2, p->len);
     }
     totLink = linkCnt;
-    totNode = linkCnt;
+    totNode = linkCnt + nodeCnt;
 }
 
-void init(link *linklist) {
+void init(link *linklist,nodeLink *nodeLinkList) {
     int cnt = 0;
     tmpNodeId = (long long *) malloc(sizeof(long long) * 2 * (totNode + 100));
     nodeId = (long long *) malloc(sizeof(long long) * 2 * (totNode + 100));
@@ -119,6 +140,12 @@ void init(link *linklist) {
         nodeId[++cnt] = now->node1;
         nodeId[++cnt] = now->node2;
         now = now->next;
+    }
+    nodeLink *nowNode = nodeLinkList;
+    nowNode = nowNode->next;
+    while (nowNode != NULL) {
+        nodeId[++cnt] = nowNode->ID;
+        nowNode = nowNode->next;
     }
     totNode = cnt;
 }
@@ -263,10 +290,11 @@ long double dijkstra(long long s, long long t) {
 
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
+    nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
     linklist->next = NULL;
     linklist->linkcnt = 0;
-    readLink(linklist, "Final_Map.map");
-    init(linklist);
+    readLink(linklist, nodeLinklist,"Final_Map.map");
+    init(linklist,nodeLinklist);
     mergeSort(nodeId, dcsNodeId, 1, totNode);
     nodedeDuplication();
     initDcsNode();
@@ -285,6 +313,6 @@ int main() {
     }
     printf("|||||||||||||||||||||||||||||||\n");
     printf("%.10Lf",sum);
-   // printf("%Lf\n", dijkstra(985084880, 1615404345));
+    // printf("%Lf\n", dijkstra(985084880, 1615404345));
     return 0;
 }
