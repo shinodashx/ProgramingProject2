@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "utils.h"
 
 long long totNode, totLink;
 
@@ -41,19 +41,19 @@ typedef struct _link {
     long double veg;
     long double land;
     long double poi;
-    long long linkcnt;
+    // long long linkcnt;
     struct _link *next;
 } link;
 
-typedef struct _NodeLink{
+typedef struct _NodeLink {
     long long ID;
     long double lat;
     long double lon;
     struct _NodeLink *next;
-}nodeLink;
+} nodeLink;
 
 
-void readLink(link *linklist, nodeLink *nodeLinkList,char *filename) {
+void readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
 
     long long linkCnt = 0;
     long long nodeCnt = 0;
@@ -90,11 +90,11 @@ void readLink(link *linklist, nodeLink *nodeLinkList,char *filename) {
             p->arch = atof(arch);
             p->land = atof(land);
             p->poi = atof(poi);
-            p->linkcnt = now->linkcnt + 1;
+            // p->linkcnt = now->linkcnt + 1;
             p->next = NULL;
             now->next = p;
             now = p;
-        } else if(strstr(buffer, "<node") != NULL) {
+        } else if (strstr(buffer, "<node") != NULL) {
             nodeCnt++;
             char Id[100] = {0};
             char lat[100] = {0};
@@ -114,7 +114,7 @@ void readLink(link *linklist, nodeLink *nodeLinkList,char *filename) {
     totNode = linkCnt + nodeCnt;
 }
 
-void init(link *linklist,nodeLink *nodeLinkList) {
+void init(link *linklist, nodeLink *nodeLinkList) {
     int cnt = 0;
     tmpNodeId = (long long *) malloc(sizeof(long long) * 2 * (totNode + 100));
     nodeId = (long long *) malloc(sizeof(long long) * 2 * (totNode + 100));
@@ -204,19 +204,6 @@ void initDcsNode() {
     }
 }
 
-long long binarySearchPos(long long node) {
-    long long l = 1, r = totNode;
-    while (l <= r) {
-        long long mid = l + ((r - l) >> 1);
-        if (nodeId[mid] < node)
-            l = mid + 1;
-        else if (nodeId[mid] > node)
-            r = mid - 1;
-        else
-            return mid;
-    }
-    return -1;
-}
 
 void buildGraph(link *linklist) {
     totEdge = 0;
@@ -225,8 +212,8 @@ void buildGraph(link *linklist) {
     while (now != NULL) {
         long long node1 = now->node1;
         long long node2 = now->node2;
-        long long pos1 = binarySearchPos(node1);
-        long long pos2 = binarySearchPos(node2);
+        long long pos1 = binarySearchPos(node1, totNode, nodeId);
+        long long pos2 = binarySearchPos(node2, totNode, nodeId);
         if (pos1 == -1 || pos2 == -1) {
             printf("error!\n");
             exit(1);
@@ -239,8 +226,8 @@ void buildGraph(link *linklist) {
 }
 
 void getLen(long long node1, long long node2) {
-    long long pos1 = binarySearchPos(node1);
-    long long pos2 = binarySearchPos(node2);
+    long long pos1 = binarySearchPos(node1, totNode, nodeId);
+    long long pos2 = binarySearchPos(node2, totNode, nodeId);
     for (int i = head[pos1]; i != -1; i = edge[i].next) {
         if (edge[i].v == pos2) {
             printf("%Lf\n", edge[i].w);
@@ -250,7 +237,6 @@ void getLen(long long node1, long long node2) {
     printf("-1\n");
 }
 
-long long cmp(long long a, long long b) { return dist[a] < dist[b] ? a : b; }
 
 void build(long long n) {
     while (M < n + 2) M <<= 1;
@@ -265,16 +251,12 @@ void modify(long long x, long double nv) {
 
 void del(long long x) {
     for (mp[x += M] = 0, x >>= 1; x; x >>= 1)
-        mp[x] = cmp(mp[x << 1], mp[x << 1 | 1]);
-}
-
-long double dabs(long double x) {
-    return x < 0 ? -x : x;
+        mp[x] = cmp(mp[x << 1], mp[x << 1 | 1], dist[mp[x << 1]], dist[mp[x << 1 | 1]]);
 }
 
 long double dijkstra(long long s, long long t) {
-    s = binarySearchPos(s);
-    t = binarySearchPos(t);
+    s = binarySearchPos(s, totNode, nodeId);
+    t = binarySearchPos(t, totNode, nodeId);
     for (int i = 0; i <= totNode; ++i) dist[i] = (long double) 1e8 + 0.0;
     build(totNode);
     modify(s, 0.00);
@@ -287,21 +269,21 @@ long double dijkstra(long long s, long long t) {
             if (dist[v] > dist[x] + w) {
                 prev[v] = x;
                 modify(v, dist[x] + w + 0.00);
-                dist[v] = (double)dist[x] + (double)w;
+                dist[v] = (double) dist[x] + (double) w;
             }
         }
     }
     return dist[t];
 }
 
-void printPath(long long end){
+void printPath(long long end) {
     int pathCnt = 0;
-    end = binarySearchPos(end);
-    for(;end!=-1;end = prev[end]){
+    end = binarySearchPos(end, totNode, nodeId);
+    for (; end != -1; end = prev[end]) {
         path[++pathCnt] = nodeId[end];
     }
-    for(int i=pathCnt;i>0;i--){
-        printf("%lld ",path[i]);
+    for (int i = pathCnt; i > 0; i--) {
+        printf("%lld ", path[i]);
     }
 }
 
@@ -309,9 +291,9 @@ int main() {
     link *linklist = (link *) malloc(sizeof(link));
     nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
     linklist->next = NULL;
-    linklist->linkcnt = 0;
-    readLink(linklist, nodeLinklist,"Final_Map.map");
-    init(linklist,nodeLinklist);
+    // linklist->linkcnt = 0;
+    readLink(linklist, nodeLinklist, "Final_Map.map");
+    init(linklist, nodeLinklist);
     mergeSort(nodeId, dcsNodeId, 1, totNode);
     printf("%lld\n", totNode);
     nodedeDuplication();
@@ -322,7 +304,7 @@ int main() {
     long double sum = 0;
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
     long double ans = dijkstra(985084880, pa[7]);
-    printf("%.10Lf\n", ans);
+    printf("%.Lf\n", ans);
     printPath(pa[7]);
     return 0;
 }
