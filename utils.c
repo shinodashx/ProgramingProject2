@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-long long cmp(long long a, long long b, long long x, long long y) { return x < y ? a : b; }
+long long cmp(long long a, long long b, long double x, long double y) { return x < y ? a : b; }
 
 long long binarySearchPos(long long node, long long totNode, long long *nodeId) {
     long long l = 1, r = totNode;

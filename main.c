@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include "utils.h"
 
 long long totNode, totLink;
@@ -15,6 +16,7 @@ long long *prev;
 long long *path;
 long long M;
 long long *mp;
+long long *vis;
 
 struct Edge {
     long long u, v;
@@ -140,6 +142,8 @@ void init(link *linklist, nodeLink *nodeLinkList) {
     memset(path, -1, sizeof(long long) * 5 * (totNode + 100));
     mp = (long long *) malloc(sizeof(long long) * 5 * (totNode + 100));
     M = 1;
+    vis = (int *) malloc(sizeof(int) * 5 * (totNode + 100));
+    memset(vis, 0, sizeof(int) * 5 * (totNode + 100));
     link *now = linklist;
     now = now->next;
     while (now != NULL) {
@@ -276,6 +280,47 @@ long double dijkstra(long long s, long long t) {
     return dist[t];
 }
 
+long double SFPA(long long s, long long t){
+    s = binarySearchPos(s, totNode, nodeId);
+    t = binarySearchPos(t, totNode, nodeId);
+    for(int i = 0; i <= totNode; ++i) dist[i] = (long double) 1e8 + 0.0;
+    long long cnt = 0;
+    long double sum = 0;
+    long long *queue;
+    queue = (long long *) malloc(sizeof(long long) * 8 * (totNode + 1));
+    long long hd = 0, tail = 0;
+    queue[tail++] = s;
+    dist[s] = 0.00;
+    vis[s] = 1;
+    cnt = 1;
+    sum = dist[s];
+    while (hd < tail) {
+        long long u = queue[hd++];
+        while (dist[u] * cnt > sum){
+            queue[tail++] = u;
+            u = queue[hd++];
+        }
+        vis[u] = 0;
+        cnt--;
+        sum -= dist[u];
+        for (long long i = head[u]; i != -1; i = edge[i].next) {
+            long long v = edge[i].v;
+            long double w = (long double) edge[i].w;
+            if (dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w;
+                if (!vis[v]) {
+                    vis[v] = 1;
+                    queue[tail++] = v;
+                    cnt++;
+                    sum += dist[v];
+                }
+            }
+        }
+    }
+    return dist[t];
+
+}
+
 void printPath(long long end) {
     int pathCnt = 0;
     end = binarySearchPos(end, totNode, nodeId);
@@ -287,6 +332,31 @@ void printPath(long long end) {
     }
 }
 
+void runningTime(int x){
+
+    if(x == 1) {
+        clock_t start, end;
+        start = clock();
+        for(int i = 1; i<= 100 ;++i){
+            for(int j = 1200; j<=2000; ++j){
+                dijkstra(nodeId[i], nodeId[j]);
+            }
+        }
+        end = clock();
+        printf("%lld\n", end - start);
+    }
+    else if(x == 2){
+        clock_t start, end;
+        start = clock();
+        for(int i = 1; i<= 100 ;++i){
+            for(int j = 1200; j<=2000; ++j){
+                SFPA(nodeId[i], nodeId[j]);
+            }
+        }
+        end = clock();
+        printf("%lld\n", end - start);
+    }
+}
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
     nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
@@ -303,8 +373,13 @@ int main() {
     long long s = 1615404345;
     long double sum = 0;
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
-    long double ans = dijkstra(985084880, pa[7]);
-    printf("%.Lf\n", ans);
-    printPath(pa[7]);
+//    long double ans = dijkstra(985084880, pa[7]);
+//    printf("%.10Lf\n", ans);
+//    printPath(pa[7]);
+//    printf("+++++++++++++++++++++++++++++++++++\n");
+//    SFPA(985084880, pa[7]);
+//    printf("%.10Lf\n", SFPA(985084880, pa[7]));
+    runningTime(1);
+    runningTime(2);
     return 0;
 }
