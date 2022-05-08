@@ -18,11 +18,7 @@ long long M;
 long long *mp;
 long long *vis;
 
-struct Edge {
-    long long u, v;
-    long double w;
-    long long next;
-} *edge;
+struct Edge *edge;
 int totEdge;
 
 void addEdge(long long u, long long v, long double w) {
@@ -32,28 +28,6 @@ void addEdge(long long u, long long v, long double w) {
     edge[totEdge].next = head[u];
     head[u] = totEdge;
 }
-
-typedef struct _link {
-    long double linkId;
-    long long node1;
-    long long node2;
-    long double way;
-    long double len;
-    long double arch;
-    long double veg;
-    long double land;
-    long double poi;
-    // long long linkcnt;
-    struct _link *next;
-} link;
-
-typedef struct _NodeLink {
-    long long ID;
-    long double lat;
-    long double lon;
-    struct _NodeLink *next;
-} nodeLink;
-
 
 void readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
 
@@ -160,28 +134,6 @@ void init(link *linklist, nodeLink *nodeLinkList) {
     totNode = cnt;
 }
 
-void mergeSort(long long *a, long long *b, long long l, long long r) {
-    if (l >= r)
-        return;
-    long long mid = (l + r) / 2;
-    mergeSort(a, b, l, mid);
-    mergeSort(a, b, mid + 1, r);
-    long long i = l, j = mid + 1, k = l;
-    while (i <= mid && j <= r) {
-        if (a[i] < a[j]) {
-            b[k++] = a[i++];
-        } else {
-            b[k++] = a[j++];
-        }
-    }
-    while (i <= mid)
-        b[k++] = a[i++];
-    while (j <= r)
-        b[k++] = a[j++];
-    for (i = l; i <= r; i++)
-        a[i] = b[i];
-}
-
 void nodedeDuplication() {
     long long i, j;
     for (i = 1; i <= totNode; i++) {
@@ -207,7 +159,6 @@ void initDcsNode() {
         dcsNode[i] = i;
     }
 }
-
 
 void buildGraph(link *linklist) {
     totEdge = 0;
@@ -280,7 +231,7 @@ long double dijkstra(long long s, long long t) {
     return dist[t];
 }
 
-long double SFPA(long long s, long long t){
+long double SPFA(long long s, long long t){
     s = binarySearchPos(s, totNode, nodeId);
     t = binarySearchPos(t, totNode, nodeId);
     for(int i = 0; i <= totNode; ++i) dist[i] = (long double) 1e8 + 0.0;
@@ -321,6 +272,7 @@ long double SFPA(long long s, long long t){
 
 }
 
+
 void printPath(long long end) {
     int pathCnt = 0;
     end = binarySearchPos(end, totNode, nodeId);
@@ -333,30 +285,36 @@ void printPath(long long end) {
 }
 
 void runningTime(int x){
-
+    double Total_time;
     if(x == 1) {
         clock_t start, end;
         start = clock();
-        for(int i = 1; i<= 100 ;++i){
-            for(int j = 1200; j<=2000; ++j){
+
+        for(int i = 1; i <= 50; ++i){
+            for(int j = 2000;j<=2050;++j){
                 dijkstra(nodeId[i], nodeId[j]);
             }
         }
+
         end = clock();
-        printf("%lld\n", end - start);
+        Total_time = (double)(end - start) / CLOCKS_PER_SEC;
+        printf("%f seconds\n", Total_time);
     }
     else if(x == 2){
         clock_t start, end;
         start = clock();
-        for(int i = 1; i<= 100 ;++i){
-            for(int j = 1200; j<=2000; ++j){
-                SFPA(nodeId[i], nodeId[j]);
+
+        for(int i = 1; i <= 50; ++i){
+            for(int j = 2000;j<=2050;++j){
+                SPFA(nodeId[i], nodeId[j]);
             }
         }
         end = clock();
-        printf("%lld\n", end - start);
+        Total_time = (double)(end - start) / CLOCKS_PER_SEC;
+        printf("%f seconds\n", Total_time);
     }
 }
+
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
     nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
@@ -365,21 +323,14 @@ int main() {
     readLink(linklist, nodeLinklist, "Final_Map.map");
     init(linklist, nodeLinklist);
     mergeSort(nodeId, dcsNodeId, 1, totNode);
-    printf("%lld\n", totNode);
     nodedeDuplication();
-    printf("%lld\n", totNode);
     initDcsNode();
     buildGraph(linklist);
     long long s = 1615404345;
     long double sum = 0;
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
-//    long double ans = dijkstra(985084880, pa[7]);
-//    printf("%.10Lf\n", ans);
-//    printPath(pa[7]);
-//    printf("+++++++++++++++++++++++++++++++++++\n");
-//    SFPA(985084880, pa[7]);
-//    printf("%.10Lf\n", SFPA(985084880, pa[7]));
     runningTime(1);
     runningTime(2);
+    runningTime(3);
     return 0;
 }

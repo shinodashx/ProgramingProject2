@@ -20,3 +20,25 @@ long long binarySearchPos(long long node, long long totNode, long long *nodeId) 
     }
     return -1;
 }
+
+void mergeSort(long long *a, long long *b, long long l, long long r) {
+    if (l >= r)
+        return;
+    long long mid = (l + r) / 2;
+    mergeSort(a, b, l, mid);
+    mergeSort(a, b, mid + 1, r);
+    long long i = l, j = mid + 1, k = l;
+    while (i <= mid && j <= r) {
+        if (a[i] < a[j]) {
+            b[k++] = a[i++];
+        } else {
+            b[k++] = a[j++];
+        }
+    }
+    while (i <= mid)
+        b[k++] = a[i++];
+    while (j <= r)
+        b[k++] = a[j++];
+    for (i = l; i <= r; i++)
+        a[i] = b[i];
+}
