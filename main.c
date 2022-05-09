@@ -269,7 +269,6 @@ long double SPFA(long long s, long long t){
         }
     }
     return dist[t];
-
 }
 
 
@@ -289,13 +288,11 @@ void runningTime(int x){
     if(x == 1) {
         clock_t start, end;
         start = clock();
-
-        for(int i = 1; i <= 50; ++i){
-            for(int j = 2000;j<=2050;++j){
+        for(int i = 1; i <= 200; ++i){
+            for(int j = 1200;j<=1400;++j){
                 dijkstra(nodeId[i], nodeId[j]);
             }
         }
-
         end = clock();
         Total_time = (double)(end - start) / CLOCKS_PER_SEC;
         printf("%f seconds\n", Total_time);
@@ -303,9 +300,8 @@ void runningTime(int x){
     else if(x == 2){
         clock_t start, end;
         start = clock();
-
-        for(int i = 1; i <= 50; ++i){
-            for(int j = 2000;j<=2050;++j){
+        for(int i = 1; i <= 200; ++i){
+            for(int j = 1200;j<=1400;++j){
                 SPFA(nodeId[i], nodeId[j]);
             }
         }
@@ -331,6 +327,6 @@ int main() {
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
     runningTime(1);
     runningTime(2);
-    runningTime(3);
+    printf("%LF\n", dijkstra(s, pa[1]));
     return 0;
 }
