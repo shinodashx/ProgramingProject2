@@ -27,6 +27,6 @@ long double dijkstra(long long s, long long t);
 long double SPFA(long long s, long long t);
 void printPath(long long end);
 
-
+void find();
 
 #endif //CWK2_ROUTEFIND_H

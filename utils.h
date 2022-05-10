@@ -36,6 +36,13 @@ typedef struct _NodeLink {
     struct _NodeLink *next;
 } nodeLink;
 
+
+typedef struct _Node {
+    long long ID;
+    long double lat;
+    long double lon;
+} nodeArray;
+
 void mergeSort(long long *a, long long *b, long long l, long long r);
 
 #endif //CWK2_UTILS_H

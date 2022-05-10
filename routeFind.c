@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "utils.h"
+#include "visual.h"
 
 long long totNode, totLink;
 
@@ -20,6 +21,7 @@ long long *vis;
 
 struct Edge *edge;
 int totEdge;
+nodeArray *nodeA;
 
 void addEdge(long long u, long long v, long double w) {
     edge[++totEdge].u = u;
@@ -118,6 +120,9 @@ void init(link *linklist, nodeLink *nodeLinkList) {
     M = 1;
     vis = (long long *) malloc(sizeof(long long) * 5 * (totNode + 100));
     memset(vis, 0, sizeof(int) * 5 * (totNode + 100));
+
+    nodeA = (nodeArray *) malloc(sizeof(nodeArray) * 2 * (totNode + 100));
+
     link *now = linklist;
     now = now->next;
     while (now != NULL) {
@@ -273,16 +278,27 @@ long double SPFA(long long s, long long t) {
 }
 
 
+void reversearray(long long *a, long long n) {
+    long long i, j;
+    for (i = 0, j = n - 1; i < j; i++, j--) {
+        long long temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+    }
+}
 void printPath(long long end) {
     int pathCnt = 0;
     end = binarySearchPos(end, totNode, nodeId);
     for (; end != -1; end = prev[end]) {
-        path[++pathCnt] = nodeId[end];
+        path[pathCnt++] = nodeId[end];
+        //printf("%d ", nodeId[end]);
     }
-    for (int i = pathCnt; i > 0; i--) {
-        printf("%lld ", path[i]);
+    reversearray(path, pathCnt);
+    for (int i = 0; i < pathCnt; i++) {
+        printf("%d ", path[i]);
     }
 }
+
 
 void runningTime(int x) {
     double Total_time;
@@ -302,7 +318,6 @@ void runningTime(int x) {
     } else if (x == 2) {
         clock_t start, end;
         start = clock();
-
         for (int i = 1; i <= 50; ++i) {
             for (int j = 2000; j <= 2050; ++j) {
                 SPFA(nodeId[i], nodeId[j]);
@@ -311,6 +326,56 @@ void runningTime(int x) {
         end = clock();
         Total_time = (double) (end - start) / CLOCKS_PER_SEC;
         printf("%f seconds\n", Total_time);
+    }
+}
+
+void dcsNodelink(link *linklist, link *dcslinklist, nodeLink *nodeLinklist, nodeLink *dcsNodeLinklist) {
+    link *p = linklist;
+    nodeLink *q = nodeLinklist;
+    link *dcsp;
+    nodeLink *dcsq;
+    dcsp = dcslinklist;
+    dcsq = dcsNodeLinklist;
+    p = p->next;
+    while (p != NULL) {
+        link *now = (link *) malloc(sizeof(link));
+        now->linkId = p->linkId;
+        now->node1 = binarySearchPos(p->node1, totNode, nodeId);
+        now->node2 = binarySearchPos(p->node2, totNode, nodeId);
+        now->way = p->way;
+        now->len = p->len;
+        now->arch = p->arch;
+        now->veg = p->veg;
+        now->land = p->land;
+        now->poi = p->poi;
+        now->next = NULL;
+
+        dcsp->next = now;
+        dcsp = dcsp->next;
+        p = p->next;
+    }
+    q = q->next;
+    while (q != NULL) {
+        nodeLink *now = (nodeLink *) malloc(sizeof(nodeLink));
+        now->ID = q->ID;
+        now->lat = q->lat;
+        now->lon = q->lon;
+        now->next = NULL;
+
+        dcsq->next = now;
+        dcsq = dcsq->next;
+        q = q->next;
+    }
+}
+void buildNodeA(nodeLink *nodeLinklist) {
+    nodeLink *p = nodeLinklist;
+    p = p->next;
+    while (p != NULL) {
+        long long pos = binarySearchPos(p->ID, totNode, nodeId);
+        nodeA[pos].ID = p->ID;
+        nodeA[pos].lat = p->lat;
+        nodeA[pos].lon = p->lon;
+        p = p->next;
     }
 }
 
@@ -325,11 +390,18 @@ void find() {
     nodedeDuplication();
     initDcsNode();
     buildGraph(linklist);
-
+    buildNodeA(nodeLinklist);
     long long s = 1615404345;
     long double sum = 0;
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
-    runningTime(1);
-    runningTime(2);
-    printf("%LF\n", dijkstra(s, pa[1]));
+    //runningTime(1);
+    //runningTime(2);
+    printf("%LF\n", dijkstra(pa[1], pa[7]));
+    printPath(pa[7]);
+    link *dcsLink = (link *) malloc(sizeof(link));
+    nodeLink *dcsNodeLink = (nodeLink *) malloc(sizeof(nodeLink));
+    dcsLink->next = NULL;
+    dcsNodeLink->next = NULL;
+    dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
+    visual_main(dcsLink, dcsNodeLink,edge, head, prev,nodeA);
 }

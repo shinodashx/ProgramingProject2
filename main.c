@@ -10,6 +10,6 @@
 int main() {
     link *linklist = (link *) malloc(sizeof(link));
     nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
+    find();
     readLink(linklist, nodeLinklist, "Final_Map.map");
-    visual_main(linklist, nodeLinklist);
 }
