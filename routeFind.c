@@ -221,7 +221,6 @@ long double dijkstra(long long s, long long t) {
     build(totNode);
     modify(s, 0.00);
     for (int k = 1; k < totNode; ++k) {
-
         long long x = mp[1];
         del(x);
         for (long long i = head[x]; i != -1; i = edge[i].next) {
@@ -278,24 +277,23 @@ long double SPFA(long long s, long long t) {
 }
 
 
-void reversearray(long long *a, long long n) {
-    long long i, j;
-    for (i = 0, j = n - 1; i < j; i++, j--) {
-        long long temp = a[i];
-        a[i] = a[j];
-        a[j] = temp;
-    }
-}
+//void reversearray(long long *a, long long n) {
+//    long long i, j;
+//    for (i = 0, j = n - 1; i < j; i++, j--) {
+//        long long temp = a[i];
+//        a[i] = a[j];
+//        a[j] = temp;
+//    }
+//}
 void printPath(long long end) {
     int pathCnt = 0;
     end = binarySearchPos(end, totNode, nodeId);
     for (; end != -1; end = prev[end]) {
-        path[pathCnt++] = nodeId[end];
-        //printf("%d ", nodeId[end]);
+        path[++pathCnt] = nodeId[end];
+        printf("%d ", end);
     }
-    reversearray(path, pathCnt);
-    for (int i = 0; i < pathCnt; i++) {
-        printf("%d ", path[i]);
+    for (int i = pathCnt; i > 0; i--) {
+        //printf("%lld ", path[i]);
     }
 }
 
@@ -403,5 +401,6 @@ void find() {
     dcsLink->next = NULL;
     dcsNodeLink->next = NULL;
     dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
-    visual_main(dcsLink, dcsNodeLink,edge, head, prev,nodeA);
+    long long end = binarySearchPos(pa[7],totNode,nodeId);
+    visual_main(dcsLink, dcsNodeLink,edge, head, prev,nodeA,end,totNode);
 }
