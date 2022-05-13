@@ -204,7 +204,7 @@ void build(long long n) {
 }
 
 void modify(long long x, long double nv) {
-    for (long long i = x + M; (long double) dist[mp[i]] > (long double)nv; i >>= 1)
+    for (long long i = x + M; (long double) dist[mp[i]] > (long double) nv; i >>= 1)
         mp[i] = x;
     dist[x] = nv;
 }
@@ -263,6 +263,7 @@ long double SPFA(long long s, long long t) {
             long long v = edge[i].v;
             long double w = (long double) edge[i].w;
             if (dist[v] > dist[u] + w) {
+                prev[v] = u;
                 dist[v] = dist[u] + w;
                 if (!vis[v]) {
                     vis[v] = 1;
@@ -277,14 +278,7 @@ long double SPFA(long long s, long long t) {
 }
 
 
-//void reversearray(long long *a, long long n) {
-//    long long i, j;
-//    for (i = 0, j = n - 1; i < j; i++, j--) {
-//        long long temp = a[i];
-//        a[i] = a[j];
-//        a[j] = temp;
-//    }
-//}
+
 void printPath(long long end) {
     int pathCnt = 0;
     end = binarySearchPos(end, totNode, nodeId);
@@ -365,6 +359,7 @@ void dcsNodelink(link *linklist, link *dcslinklist, nodeLink *nodeLinklist, node
         q = q->next;
     }
 }
+
 void buildNodeA(nodeLink *nodeLinklist) {
     nodeLink *p = nodeLinklist;
     p = p->next;
@@ -401,6 +396,6 @@ void find() {
     dcsLink->next = NULL;
     dcsNodeLink->next = NULL;
     dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
-    long long end = binarySearchPos(pa[7],totNode,nodeId);
-    visual_main(dcsLink, dcsNodeLink,edge, head, prev,nodeA,end,totNode);
+    long long end = binarySearchPos(pa[7], totNode, nodeId);
+    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
 }
