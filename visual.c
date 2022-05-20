@@ -103,8 +103,8 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
                 SDL_RenderPresent(renderer);
             }
             if (event.type == SDL_MOUSEMOTION && event.motion.state == SDL_PRESSED) {
-                offset_y += event.motion.xrel;
-                offset_x += event.motion.yrel;
+                offset_x += event.motion.xrel / 4;
+                offset_y += event.motion.yrel / 4;
             }
             draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
             SDL_RenderPresent(renderer);

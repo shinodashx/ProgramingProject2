@@ -214,7 +214,7 @@ void del(long long x) {
         mp[x] = cmp(mp[x << 1], mp[x << 1 | 1], dist[mp[x << 1]], dist[mp[x << 1 | 1]]);
 }
 
-long double dijkstra(long long s, long long t) {
+long double Dijkstra(long long s, long long t) {
     s = binarySearchPos(s, totNode, nodeId);
     t = binarySearchPos(t, totNode, nodeId);
     for (int i = 0; i <= totNode; ++i) dist[i] = (long double) 1e8 + 0.0;
@@ -300,7 +300,7 @@ void runningTime(int x) {
 
         for (int i = 1; i <= 50; ++i) {
             for (int j = 2000; j <= 2050; ++j) {
-                dijkstra(nodeId[i], nodeId[j]);
+                Dijkstra(nodeId[i], nodeId[j]);
             }
         }
 
@@ -389,7 +389,7 @@ void find() {
     long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
     //runningTime(1);
     //runningTime(2);
-    printf("%LF\n", dijkstra(pa[1], pa[7]));
+    printf("%LF\n", Dijkstra(pa[1], pa[7]));
     printPath(pa[7]);
     link *dcsLink = (link *) malloc(sizeof(link));
     nodeLink *dcsNodeLink = (nodeLink *) malloc(sizeof(nodeLink));
