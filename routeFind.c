@@ -406,6 +406,9 @@ void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t) {
 
     long long end = binarySearchPos(t, totNode, nodeId);
     printPath(end);
-    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
+    //visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
 }
 
+long long* getPrev(){
+    return prev;
+}

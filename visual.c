@@ -54,7 +54,7 @@ void draw(SDL_Window *window, link *edge_list, nodeLink *node_list, SDL_Renderer
         SDL_Rect rect = {.x = (int) x, .y = (int) y, .w = pointsz, .h = pointsz};
         SDL_RenderFillRect(renderer, &rect);
         int a = x, b = y;
-        if(node_array[i].ID == -8847 || node_array[i].ID == -8849)printf("%ld %d %d\n",node_array[i].ID, (int)a,(int)b);
+        //if(node_array[i].ID == -8847 || node_array[i].ID == -8849)printf("%ld %d %d\n",node_array[i].ID, (int)a,(int)b);
 
         long long u = i;
         for (long long j = head[u]; j != -1; j = edge[j].next) {
@@ -152,11 +152,12 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
                 long long s = start, t = end;
                 start = -1, end = -1;
                 update(edgelink, nodelink, node_array[s].ID, node_array[t].ID);
-                //draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
-                //SDL_RenderPresent(renderer);
+                long long *newprev = getPrev();
+                draw(window, edgelink, nodelink, renderer, edge, head, node_array, t, newprev, totNode);
+                SDL_RenderPresent(renderer);
             }
-            draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
-            SDL_RenderPresent(renderer);
+            //draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
+            //SDL_RenderPresent(renderer);
         }
     }
 }
