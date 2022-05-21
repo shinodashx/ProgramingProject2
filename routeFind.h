@@ -39,5 +39,6 @@ long double SPFA(long long s, long long t);
 void printPath(long long end);
 
 void find();
+void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t);
 
 #endif //CWK2_ROUTEFIND_H

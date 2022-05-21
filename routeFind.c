@@ -20,6 +20,9 @@ long long *mp;
 long long *vis;
 
 struct Edge *edge;
+
+void findmain(link *pLink, nodeLink *pLink1);
+
 int totEdge;
 nodeArray *nodeA;
 
@@ -281,7 +284,7 @@ long double SPFA(long long s, long long t) {
 
 void printPath(long long end) {
     int pathCnt = 0;
-    end = binarySearchPos(end, totNode, nodeId);
+    //end = binarySearchPos(end, totNode, nodeId);
     for (; end != -1; end = prev[end]) {
         path[++pathCnt] = nodeId[end];
         printf("%d ", end);
@@ -371,6 +374,9 @@ void buildNodeA(nodeLink *nodeLinklist) {
         p = p->next;
     }
 }
+link *dcsLink;
+nodeLink *dcsNodeLink;
+long long *end;
 
 void find() {
     link *linklist = (link *) malloc(sizeof(link));
@@ -384,18 +390,22 @@ void find() {
     initDcsNode();
     buildGraph(linklist);
     buildNodeA(nodeLinklist);
-    long long s = 1615404345;
-    long double sum = 0;
-    long long pa[10] = {0, 985084880, 247293194, 247293217, -2450, 247293200, 247293203, 1615404345};
-    //runningTime(1);
-    //runningTime(2);
-    printf("%LF\n", Dijkstra(pa[1], pa[7]));
-    printPath(pa[7]);
-    link *dcsLink = (link *) malloc(sizeof(link));
-    nodeLink *dcsNodeLink = (nodeLink *) malloc(sizeof(nodeLink));
+    dcsLink = (link *) malloc(sizeof(link));
+    dcsNodeLink = (nodeLink *) malloc(sizeof(nodeLink));
     dcsLink->next = NULL;
     dcsNodeLink->next = NULL;
     dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
-    long long end = binarySearchPos(pa[7], totNode, nodeId);
+    end = 0;
     visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
 }
+
+void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t) {
+    memset(prev, -1, sizeof(long long) * 5 * (totNode + 100));
+    printf("++++++++++++++++++++++++++\n");
+    printf("%LF\n", Dijkstra(s,t));
+
+    long long end = binarySearchPos(t, totNode, nodeId);
+    printPath(end);
+    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
+}
+

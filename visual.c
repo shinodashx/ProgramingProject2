@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
 #include "utils.h"
+#include "routeFind.h"
 
 #define WINDOW_WIDTH 2400
 #define WINDOW_HEIGHT 1200
@@ -27,28 +28,45 @@ void calc(long double lat, long double lon, long double *x, long double *y) {
     *y = (lat - baselat) * 1000000 / scale + offset_y;
 }
 
+long double calcx(long double lat, long double lon, long double x, long double y) {
+    x = (lon - baselon) * 1000000 / scale + offset_x;
+    return x;
+}
+
+long double calcy(long double lat, long double lon, long double x, long double y) {
+    y = (lat - baselat) * 1000000 / scale + offset_y;
+    return y;
+}
+
 void draw(SDL_Window *window, link *edge_list, nodeLink *node_list, SDL_Renderer *renderer, struct Edge *edge,
           long long *head, nodeArray *node_array, long long endPoint, long long *prev, long long totNode) {
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     nodeLink *node_ptr = node_list;
+    long double x,y;
     for (long long i = 1; i <= totNode; ++i) {
-        long double *x = malloc(sizeof(long double)), *y = malloc(sizeof(long double));
-        calc(node_array[i].lat, node_array[i].lon, x, y);
-        SDL_Rect rect = {.x = (int) *x, .y = (int) *y, .w = pointsz, .h = pointsz};
+
+
+        x = calcx(node_array[i].lat, node_array[i].lon, x, y);
+        y = calcy(node_array[i].lat, node_array[i].lon, x, y);
+        SDL_Rect rect = {.x = (int) x, .y = (int) y, .w = pointsz, .h = pointsz};
         SDL_RenderFillRect(renderer, &rect);
+        int a = x, b = y;
+        if(node_array[i].ID == -8847 || node_array[i].ID == -8849)printf("%ld %d %d\n",node_array[i].ID, (int)a,(int)b);
+
         long long u = i;
         for (long long j = head[u]; j != -1; j = edge[j].next) {
             long long v = edge[j].v;
             long double *x1 = malloc(sizeof(long double)), *y1 = malloc(sizeof(long double));
             calc(node_array[v].lat, node_array[v].lon, x1, y1);
-            SDL_RenderDrawLine(renderer, (int) *x + pointsz / 2, (int) *y + pointsz / 2, (int) *x1 + pointsz / 2,
+            SDL_RenderDrawLine(renderer, (int) x + pointsz / 2, (int) y + pointsz / 2, (int) *x1 + pointsz / 2,
                                (int) *y1 + pointsz / 2);
         }
         node_ptr = node_ptr->next;
-        free(x);
-        free(y);
+        //free(x);
+        //free(y);
     }
     long long last = endPoint;
     for (; endPoint != -1; endPoint = prev[endPoint]) {
@@ -83,6 +101,8 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
     SDL_RenderPresent(renderer);
+
+    long long start = -1, end = -1;
     while (!quitflag) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -106,9 +126,37 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
                 offset_x += event.motion.xrel / 4;
                 offset_y += event.motion.yrel / 4;
             }
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                // get the mouse position
+                int  a, b;
+                SDL_GetMouseState(&a, &b);
+                long double x = (long double)a, y=(long double)b;
+                printf("%LF %LF\n", x, y);
+                long double xx, yy;
+                for (long long i = 1; i <= totNode; ++i) {
+                    xx = calcx(node_array[i].lat, node_array[i].lon, xx, yy);
+                    yy = calcy(node_array[i].lat, node_array[i].lon, xx, yy);
+                    if (fabsl((x - xx)) <= 5 && fabsl(y - yy) <= 5) {
+                        printf("++++++++++++++++++++++++++++++++++++++\n");
+                        if(start != -1) end = i;
+                        else start = i;
+                        printf("%ld\n",start);
+                        printf("%ld\n", end);
+                        break;
+                    }
+                }
+            }
+
+            if(end!=-1) {
+                printf("++++++++++++++++++++++++++++++++++++++\n");
+                long long s = start, t = end;
+                start = -1, end = -1;
+                update(edgelink, nodelink, node_array[s].ID, node_array[t].ID);
+                //draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
+                //SDL_RenderPresent(renderer);
+            }
             draw(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode);
             SDL_RenderPresent(renderer);
-
         }
     }
 }
