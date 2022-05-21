@@ -4,6 +4,7 @@
 #include <time.h>
 #include "utils.h"
 #include "visual.h"
+#include "UI.h"
 
 long long totNode, totLink;
 
@@ -26,6 +27,7 @@ void findmain(link *pLink, nodeLink *pLink1);
 int totEdge;
 nodeArray *nodeA;
 
+//Used to add edges to an array-optimized adjacency list
 void addEdge(long long u, long long v, long double w) {
     edge[++totEdge].u = u;
     edge[totEdge].v = v;
@@ -34,6 +36,7 @@ void addEdge(long long u, long long v, long double w) {
     head[u] = totEdge;
 }
 
+//It is used to read the edge and point information in the file and store it in two linked lists respectively.
 int readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
 
     long long linkCnt = 0;
@@ -96,6 +99,7 @@ int readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
     return 0;
 }
 
+//Initialize the required arrays and store the point information.
 void init(link *linklist, nodeLink *nodeLinkList) {
     int cnt = 0;
     tmpNodeId = (long long *) malloc(sizeof(long long) * 2 * (totNode + 100));
@@ -143,6 +147,7 @@ void init(link *linklist, nodeLink *nodeLinkList) {
     totNode = cnt;
 }
 
+//Deduplicates points that were repeated during the previous read.
 void nodedeDuplication() {
     long long i, j;
     for (i = 1; i <= totNode; i++) {
@@ -163,12 +168,14 @@ void nodedeDuplication() {
     }
 }
 
+//Initialize the labels of the discretized points.
 void initDcsNode() {
     for (int i = 1; i <= totNode; i++) {
         dcsNode[i] = i;
     }
 }
 
+//Build graphs using array-optimized adjacency lists.
 void buildGraph(link *linklist) {
     totEdge = 0;
     link *now = linklist;
@@ -189,6 +196,7 @@ void buildGraph(link *linklist) {
     }
 }
 
+//Returns the distance between two edges
 void getLen(long long node1, long long node2) {
     long long pos1 = binarySearchPos(node1, totNode, nodeId);
     long long pos2 = binarySearchPos(node2, totNode, nodeId);
@@ -201,23 +209,26 @@ void getLen(long long node1, long long node2) {
     printf("-1\n");
 }
 
-
+//Used to build segment trees
 void build(long long n) {
     while (M < n + 2) M <<= 1;
     mp[0] = n + 1;
 }
 
+//Single-point modification to the value of the segment tree
 void modify(long long x, long double nv) {
     for (long long i = x + M; (long double) dist[mp[i]] > (long double) nv; i >>= 1)
         mp[i] = x;
     dist[x] = nv;
 }
 
+//delete a point on the segment tree
 void del(long long x) {
     for (mp[x += M] = 0, x >>= 1; x; x >>= 1)
         mp[x] = cmp(mp[x << 1], mp[x << 1 | 1], dist[mp[x << 1]], dist[mp[x << 1 | 1]]);
 }
 
+//Use Dijkstra's algorithm to calculate the most path, and use segment tree to optimize the time complexity.
 long double Dijkstra(long long s, long long t) {
     s = binarySearchPos(s, totNode, nodeId);
     t = binarySearchPos(t, totNode, nodeId);
@@ -240,6 +251,7 @@ long double Dijkstra(long long s, long long t) {
     return dist[t];
 }
 
+//Leverage the SPFA algorithm for the most path computation, and use SLF and queues for optimization.
 long double SPFA(long long s, long long t) {
     s = binarySearchPos(s, totNode, nodeId);
     t = binarySearchPos(t, totNode, nodeId);
@@ -281,8 +293,7 @@ long double SPFA(long long s, long long t) {
     return dist[t];
 }
 
-
-
+//Output the point that the most path passes through
 void printPath(long long end) {
     int pathCnt = 0;
     //end = binarySearchPos(end, totNode, nodeId);
@@ -296,7 +307,7 @@ void printPath(long long end) {
     printf("\n");
 }
 
-
+//Calculate program running time
 void runningTime(int x) {
     double Total_time;
     if (x == 1) {
@@ -326,6 +337,7 @@ void runningTime(int x) {
     }
 }
 
+//Discretize the points in the linked list and generate a linked list of discretized points.
 void dcsNodelink(link *linklist, link *dcslinklist, nodeLink *nodeLinklist, nodeLink *dcsNodeLinklist) {
     link *p = linklist;
     nodeLink *q = nodeLinklist;
@@ -365,6 +377,7 @@ void dcsNodelink(link *linklist, link *dcslinklist, nodeLink *nodeLinklist, node
     }
 }
 
+//Discretize the points in the linked list and generate an Array list of discretized points.
 void buildNodeA(nodeLink *nodeLinklist) {
     nodeLink *p = nodeLinklist;
     p = p->next;
@@ -376,16 +389,24 @@ void buildNodeA(nodeLink *nodeLinklist) {
         p = p->next;
     }
 }
+
 link *dcsLink;
 nodeLink *dcsNodeLink;
 long long *end;
+long double dis;
 
-void find() {
+
+// Find the optimal path and visualize it
+void find(char *filename, int flag) {
+    dis = 0;
+    long long s = getstart();
+    long long t = getend();
+    printf("%ld   %ld\n", s, t);
     link *linklist = (link *) malloc(sizeof(link));
     nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
     linklist->next = NULL;
     // linklist->linkcnt = 0;
-    readLink(linklist, nodeLinklist, "Final_Map.map");
+    readLink(linklist, nodeLinklist, filename);
     init(linklist, nodeLinklist);
     mergeSort(nodeId, dcsNodeId, 1, totNode);
     nodedeDuplication();
@@ -397,19 +418,37 @@ void find() {
     dcsLink->next = NULL;
     dcsNodeLink->next = NULL;
     dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
-    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, 0, totNode);
+    if (s == 0 || t == 0 || s == -1 || t == -1) {
+        visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, 0, totNode);
+    } else {
+        dis = Dijkstra(s, t);
+        printf("The length is %LF meters\n", dis);
+        t = binarySearchPos(t, totNode, nodeId);
+        printf("The path is:\n");
+        printPath(t);
+        visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, t, totNode);
+    }
 }
 
+//The shortest path length, and the path, are updated by the point selected by the user.
 void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t) {
     memset(prev, -1, sizeof(long long) * 5 * (totNode + 100));
     printf("++++++++++++++++++++++++++\n");
-    printf("%LF\n", Dijkstra(s,t));
-
-    long long end = binarySearchPos(t, totNode, nodeId);
-    printPath(end);
+    dis = Dijkstra(s, t);
+    printf("The length is %LF meters\n", dis);
+    t = binarySearchPos(t, totNode, nodeId);
+    printf("The path is:\n");
+    printPath(t);
     //visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
 }
 
-long long* getPrev(){
+
+//Returns an array of paths.
+long long *getPrev() {
     return prev;
+}
+
+
+long double getDis() {
+    return dis;
 }

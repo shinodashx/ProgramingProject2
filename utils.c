@@ -1,12 +1,12 @@
 //
-// Created by shinoda_shx on 2022/4/30.
+// Created by shx
 //
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 long long cmp(long long a, long long b, long double x, long double y) { return x < y ? a : b; }
-
+//binary search for the index of the discretized point corresponding to the original point
 long long binarySearchPos(long long node, long long totNode, long long *nodeId) {
     long long l = 1, r = totNode;
     while (l <= r) {
@@ -20,7 +20,7 @@ long long binarySearchPos(long long node, long long totNode, long long *nodeId) 
     }
     return -1;
 }
-
+//Use merge sort for the original label of the point, so as to prepare for the next step of discretization.
 void mergeSort(long long *a, long long *b, long long l, long long r) {
     if (l >= r)
         return;

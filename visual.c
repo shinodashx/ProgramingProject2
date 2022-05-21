@@ -1,5 +1,5 @@
 //
-// Created by shinoda_shx on 2022/5/9.
+// Created by shx
 //
 #include <stdio.h>
 #include "SDL2/SDL.h"
@@ -15,6 +15,7 @@ long double offset_y = -20;
 long double pointsz = 4;
 long double scale = 10;
 
+//Initialize SDL
 void visual_init(void) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
@@ -23,21 +24,25 @@ void visual_init(void) {
     baselat = 1e18, baselon = 1e18;
 }
 
+//Calculate the position of the current point on the screen
 void calc(long double lat, long double lon, long double *x, long double *y) {
     *x = (lon - baselon) * 1000000 / scale + offset_x;
     *y = (lat - baselat) * 1000000 / scale + offset_y;
 }
 
+//Calculate the position of the current point x coordinate on the screen
 long double calcx(long double lat, long double lon, long double x, long double y) {
     x = (lon - baselon) * 1000000 / scale + offset_x;
     return x;
 }
 
+//Calculate the position of the current point y coordinate on the screen
 long double calcy(long double lat, long double lon, long double x, long double y) {
     y = (lat - baselat) * 1000000 / scale + offset_y;
     return y;
 }
 
+//Draw the map and the shortest path.
 void draw(SDL_Window *window, link *edge_list, nodeLink *node_list, SDL_Renderer *renderer, struct Edge *edge,
           long long *head, nodeArray *node_array, long long endPoint, long long totNode) {
 
@@ -86,7 +91,7 @@ void draw(SDL_Window *window, link *edge_list, nodeLink *node_list, SDL_Renderer
     }
 }
 
-
+//Update and red mark the point selected by the user.
 void highlight(SDL_Window *window, link *edge_list, nodeLink *node_list, SDL_Renderer *renderer, struct Edge *edge,
                long long *head, nodeArray *node_array, long long endPoint, long long *prev, long long totNode,
                long long nownode) {
@@ -161,20 +166,20 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
                     pointsz *= 0.9;
                     if (pointsz <= 0) pointsz = 0.1;
                 }
-                long long t = end;
+                long long t = endPoint;
                 draw(window, edgelink, nodelink, renderer, edge, head, node_array, t, totNode);
                 SDL_RenderPresent(renderer);
             }
             if (event.type == SDL_MOUSEMOTION && event.motion.state == SDL_PRESSED) {
                 offset_x += event.motion.xrel / 4;
                 offset_y += event.motion.yrel / 4;
-                long long t = end;
+                long long t = endPoint;
                 draw(window, edgelink, nodelink, renderer, edge, head, node_array, t, totNode);
                 SDL_RenderPresent(renderer);
             }
             if (event.type == SDL_MOUSEBUTTONDOWN) {
                 // get the mouse position
-                if(end != -1) {
+                if (end != -1) {
                     start = -1;
                     end = -1;
                 }
@@ -186,13 +191,10 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
                     xx = calcx(node_array[i].lat, node_array[i].lon, xx, yy);
                     yy = calcy(node_array[i].lat, node_array[i].lon, xx, yy);
                     if (fabsl((x - xx)) <= pointsz && fabsl(y - yy) <= pointsz) {
-                        printf("++++++++++++++++++++++++++++++++++++++\n");
                         if (start != -1) end = i;
                         else start = i;
                         highlight(window, edgelink, nodelink, renderer, edge, head, node_array, endPoint, prev, totNode,
                                   node_array[i].ID);
-                        printf("%ld\n", start);
-                        printf("%ld\n", end);
                         SDL_RenderPresent(renderer);
                         break;
                     }
@@ -200,16 +202,14 @@ void visual_main(link *edgelink, nodeLink *nodelink, struct Edge *edge, long lon
             }
 
             if (end != -1) {
-                printf("++++++++++++++++++++++++++++++++++++++\n");
                 long long s = start, t = end;
-                //start = -1, end = -1;
+                endPoint = t;
+                start = -1, end = -1;
                 update(edgelink, nodelink, node_array[s].ID, node_array[t].ID);
                 newprev = getPrev();
                 draw(window, edgelink, nodelink, renderer, edge, head, node_array, t, totNode);
                 SDL_RenderPresent(renderer);
             }
-            //draw(window, edgelink, nodelink, renderer, edge, head, node_array, end, newprev, totNode);
-            //SDL_RenderPresent(renderer);
         }
     }
 }

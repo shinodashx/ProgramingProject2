@@ -1,5 +1,5 @@
 //
-// Created by shinoda_shx on 2022/5/9.
+// Created by shx
 //
 
 #ifndef CWK2_ROUTEFIND_H
@@ -38,7 +38,12 @@ long double SPFA(long long s, long long t);
 
 void printPath(long long end);
 
-void find();
+void find(char *filename);
+
 void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t);
-long long* getPrev();
+
+long long *getPrev();
+
+long double getDis();
+
 #endif //CWK2_ROUTEFIND_H

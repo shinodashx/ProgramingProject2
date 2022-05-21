@@ -1,6 +1,5 @@
 //
-// Created by shinoda_shx on 2022/4/30.
-//
+// Created by shx
 
 #ifndef CWK2_UTILS_H
 #define CWK2_UTILS_H
