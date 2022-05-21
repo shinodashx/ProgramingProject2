@@ -17,7 +17,7 @@ long long endPoint;
 char *filename;
 uiLabel *dislen;
 uiGrid *grid;
-link *linklist ;
+link *linklist;
 nodeLink *nodeLinklist;
 
 //Record the starting point of user input.

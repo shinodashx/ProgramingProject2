@@ -299,7 +299,7 @@ void printPath(long long end) {
     //end = binarySearchPos(end, totNode, nodeId);
     for (; end != -1; end = prev[end]) {
         path[++pathCnt] = nodeId[end];
-        printf("%d ", end);
+        printf("%d ", nodeId[end]);
     }
     for (int i = pathCnt; i > 0; i--) {
         //printf("%lld ", path[i]);
