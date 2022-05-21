@@ -34,7 +34,7 @@ void addEdge(long long u, long long v, long double w) {
     head[u] = totEdge;
 }
 
-void readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
+int readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
 
     long long linkCnt = 0;
     long long nodeCnt = 0;
@@ -42,7 +42,7 @@ void readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         printf("open file error!\n");
-        exit(1);
+        return -1;
     }
 
     link *now = linklist;
@@ -93,6 +93,7 @@ void readLink(link *linklist, nodeLink *nodeLinkList, char *filename) {
     }
     totLink = linkCnt;
     totNode = linkCnt + nodeCnt;
+    return 0;
 }
 
 void init(link *linklist, nodeLink *nodeLinkList) {
@@ -292,6 +293,7 @@ void printPath(long long end) {
     for (int i = pathCnt; i > 0; i--) {
         //printf("%lld ", path[i]);
     }
+    printf("\n");
 }
 
 
@@ -395,8 +397,7 @@ void find() {
     dcsLink->next = NULL;
     dcsNodeLink->next = NULL;
     dcsNodelink(linklist, dcsLink, nodeLinklist, dcsNodeLink);
-    end = 0;
-    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, end, totNode);
+    visual_main(dcsLink, dcsNodeLink, edge, head, prev, nodeA, 0, totNode);
 }
 
 void update(link *dcsLink, nodeLink *dcsNodeLink, long long s, long long t) {

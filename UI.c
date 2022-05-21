@@ -1,3 +1,6 @@
+//
+// Created by shx on 22-5-21.
+//
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -89,11 +92,4 @@ void UI() {
     uiControlShow(uiControl(win));
     uiWindowOnClosing(win, onClosing, NULL);
     uiMain();
-}
-
-int main() {
-    link *linklist = (link *) malloc(sizeof(link));
-    nodeLink *nodeLinklist = (nodeLink *) malloc(sizeof(nodeLink));
-    UI();
-    find();
 }

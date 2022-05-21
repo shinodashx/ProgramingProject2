@@ -14,7 +14,7 @@
 
 void addEdge(long long u, long long v, long double w);
 
-void readLink(link *linklist, nodeLink *nodeLinkList, char *filename);
+int readLink(link *linklist, nodeLink *nodeLinkList, char *filename);
 
 void init(link *linklist, nodeLink *nodeLinkList);
 
